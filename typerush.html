@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TypeRush</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+html,body{
+    margin:0;
+    width:100%;
+    min-height:100%;
+}
+
+body{
+    background:#080808;
+    color:#eee;
+    font-family:Arial,Helvetica,sans-serif;
+    overflow-x:hidden;
+}
+
+button,
+input,
+select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.app{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:25px;
+}
+
+.screen{
+    width:100%;
+    max-width:1050px;
+    display:none;
+}
+
+.screen.active{
+    display:block;
+}
+
+/* BACKGROUND */
+
+.bg{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:-1;
+    background:
+        radial-gradient(circle at 50% 0%,#222 0,#111 28%,#080808 65%);
+}
+
+.grid{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:-1;
+    opacity:.08;
+    background-image:
+        linear-gradient(#fff 1px,transparent 1px),
+        linear-gradient(90deg,#fff 1px,transparent 1px);
+    background-size:45px 45px;
+}
+
+/* GLASS */
+
+.glass{
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.13);
+    box-shadow:
+        0 20px 70px rgba(0,0,0,.5),
+        inset 0 1px 0 rgba(255,255,255,.04);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+}
+
+/* HOME */
+
+.home{
+    text-align:center;
+}
+
+.logo{
+    font-size:clamp(55px,9vw,100px);
+    font-weight:900;
+    letter-spacing:-7px;
+    line-height:.9;
+}
+
+.logo span{
+    color:#555;
+}
+
+.subtitle{
+    margin-top:18px;
+    color:#666;
+    font-size:13px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+}
+
+.home-menu{
+    width:min(400px,100%);
+    margin:55px auto 0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.btn{
+    border:1px solid #292929;
+    background:rgba(255,255,255,.035);
+    color:#ddd;
+    padding:15px 18px;
+    border-radius:0;
+    transition:.15s;
+    letter-spacing:1px;
+}
+
+.btn:hover{
+    background:rgba(255,255,255,.09);
+    border-color:#555;
+}
+
+.btn.primary{
+    background:#eee;
+    color:#080808;
+    border-color:#eee;
+    font-weight:800;
+}
+
+.btn.primary:hover{
+    background:#fff;
+}
+
+/* HEADERS */
+
+.page-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+
+.page-head h1{
+    margin:0;
+    font-size:25px;
+    letter-spacing:-1px;
+}
+
+.back{
+    background:none;
+    border:0;
+    color:#666;
+    padding:5px;
+}
+
+.back:hover{
+    color:#fff;
+}
+
+/* SETUP */
+
+.setup-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.panel{
+    padding:22px;
+}
+
+.panel.full{
+    grid-column:1/-1;
+}
+
+.panel-title{
+    font-size:12px;
+    color:#aaa;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    margin-bottom:5px;
+}
+
+.panel-desc{
+    font-size:11px;
+    color:#555;
+    margin-bottom:18px;
+}
+
+.options{
+    display:flex;
+    gap:6px;
+}
+
+.option{
+    flex:1;
+    padding:12px 8px;
+    border:1px solid #292929;
+    background:#0c0c0c;
+    color:#666;
+    border-radius:0;
+}
+
+.option:hover{
+    color:#ddd;
+    border-color:#555;
+}
+
+.option.selected{
+    background:#eee;
+    color:#080808;
+    border-color:#eee;
+    font-weight:bold;
+}
+
+.start{
+    margin-top:10px;
+    width:100%;
+}
+
+/* SETTINGS */
+
+.settings{
+    padding:5px 22px;
+}
+
+.setting{
+    min-height:67px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid #1d1d1d;
+}
+
+.setting:last-child{
+    border-bottom:0;
+}
+
+.setting-name{
+    font-size:13px;
+}
+
+.setting-description{
+    margin-top:4px;
+    font-size:10px;
+    color:#555;
+}
+
+.toggle{
+    width:43px;
+    height:23px;
+    padding:0;
+    border:1px solid #333;
+    background:#111;
+    position:relative;
+    border-radius:0;
+}
+
+.toggle:after{
+    content:"";
+    position:absolute;
+    width:15px;
+    height:15px;
+    left:3px;
+    top:3px;
+    background:#555;
+    transition:.15s;
+}
+
+.toggle.on{
+    background:#eee;
+    border-color:#eee;
+}
+
+.toggle.on:after{
+    left:23px;
+    background:#111;
+}
+
+/* GAME */
+
+.game{
+    max-width:1100px;
+}
+
+.game-top{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:7px;
+    margin-bottom:12px;
+}
+
+.stat{
+    padding:13px 15px;
+}
+
+.stat-label{
+    color:#555;
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+}
+
+.stat-value{
+    margin-top:5px;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.progress{
+    height:2px;
+    background:#1b1b1b;
+    margin-bottom:30px;
+}
+
+.progress-bar{
+    height:100%;
+    width:0;
+    background:#eee;
+    transition:width .1s linear;
+}
+
+/* TYPING AREA */
+
+.typing-panel{
+    min-height:330px;
+    padding:40px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.text-wrap{
+    position:relative;
+    width:100%;
+    max-width:950px;
+    margin:auto;
+}
+
+.text-display{
+    font-family:"Courier New",monospace;
+    font-size:clamp(20px,3vw,31px);
+    line-height:1.7;
+    letter-spacing:.4px;
+    white-space:pre-wrap;
+    word-break:normal;
+    user-select:none;
+}
+
+.char{
+    color:#303030;
+    position:relative;
+}
+
+.char.correct{
+    color:#eee;
+}
+
+.char.wrong{
+    color:#777;
+    text-decoration:underline;
+    text-decoration-color:#eee;
+    text-decoration-thickness:2px;
+}
+
+.char.current{
+    color:#555;
+}
+
+.char.current:before{
+    content:"";
+    position:absolute;
+    width:2px;
+    height:75%;
+    top:12%;
+    left:-3px;
+    background:#eee;
+    animation:cursorBlink .9s infinite;
+}
+
+@keyframes cursorBlink{
+    50%{
+        opacity:0;
+    }
+}
+
+/* REAL INPUT */
+
+.typing-input{
+    position:fixed;
+    width:1px;
+    height:1px;
+    opacity:0;
+    left:-100px;
+    top:-100px;
+    border:0;
+    outline:0;
+    pointer-events:none;
+}
+
+.game-hint{
+    text-align:center;
+    color:#444;
+    font-size:10px;
+    margin-top:30px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+}
+
+/* RESULTS */
+
+.results{
+    max-width:650px;
+    margin:auto;
+    text-align:center;
+}
+
+.results-title{
+    font-size:48px;
+    font-weight:900;
+    letter-spacing:-3px;
+}
+
+.results-sub{
+    color:#555;
+    font-size:12px;
+    margin-top:5px;
+}
+
+.result-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:7px;
+    margin:35px 0 10px;
+}
+
+.result{
+    padding:25px 10px;
+}
+
+.result-number{
+    font-size:30px;
+    font-weight:bold;
+}
+
+.result-label{
+    color:#555;
+    font-size:9px;
+    letter-spacing:2px;
+    margin-top:5px;
+}
+
+.result-buttons{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+    margin-top:7px;
+}
+
+/* MODE */
+
+.mode-card{
+    padding:22px;
+}
+
+.mode-list{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+}
+
+.mode-option{
+    text-align:left;
+    padding:18px;
+    border:1px solid #222;
+    background:rgba(255,255,255,.025);
+    color:#aaa;
+}
+
+.mode-option:hover{
+    border-color:#555;
+}
+
+.mode-option.active{
+    border-color:#eee;
+    background:rgba(255,255,255,.07);
+    color:#eee;
+}
+
+.mode-option strong{
+    display:block;
+    color:inherit;
+    margin-bottom:5px;
+}
+
+.mode-option span{
+    color:#555;
+    font-size:10px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:700px){
+
+    .app{
+        padding:15px;
+    }
+
+    .setup-grid{
+        grid-template-columns:1fr;
+    }
+
+    .panel.full{
+        grid-column:auto;
+    }
+
+    .game-top{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .typing-panel{
+        padding:20px 14px;
+        min-height:400px;
+    }
+
+    .mode-list{
+        grid-template-columns:1fr;
+    }
+
+    .result-grid{
+        grid-template-columns:1fr;
+    }
+
+    .result-buttons{
+        grid-template-columns:1fr;
+    }
+
+    .logo{
+        letter-spacing:-5px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<div class="grid"></div>
+
+<div class="app">
+
+<!-- ================= HOME ================= -->
+
+<section id="home" class="screen active home">
+
+    <div class="logo">
+        TYPE<span>RUSH</span>
+    </div>
+
+    <div class="subtitle">
+        Improve your typing
+    </div>
+
+    <div class="home-menu">
+
+        <button class="btn primary" id="homePlay">
+            PLAY
+        </button>
+
+        <button class="btn" id="homeMode">
+            MODE
+        </button>
+
+        <button class="btn" id="homeSettings">
+            SETTINGS
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ================= MODE ================= -->
+
+<section id="modeScreen" class="screen">
+
+    <div class="page-head">
+        <h1>Mode</h1>
+        <button class="back" data-screen="home">← BACK</button>
+    </div>
+
+    <div class="glass mode-card">
+
+        <div class="mode-list">
+
+            <button class="mode-option active">
+                <strong>CLASSIC</strong>
+                <span>Type a generated sentence as accurately as possible.</span>
+            </button>
+
+            <button class="mode-option">
+                <strong>SPRINT</strong>
+                <span>Short texts designed for quick typing sessions.</span>
+            </button>
+
+            <button class="mode-option">
+                <strong>PRECISION</strong>
+                <span>Accuracy matters more than speed.</span>
+            </button>
+
+            <button class="mode-option">
+                <strong>ENDLESS</strong>
+                <span>Keep typing through continuous sentences.</span>
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= SETUP ================= -->
+
+<section id="setupScreen" class="screen">
+
+    <div class="page-head">
+        <h1>Game Setup</h1>
+        <button class="back" data-screen="home">← BACK</button>
+    </div>
+
+    <div class="setup-grid">
+
+        <div class="glass panel">
+
+            <div class="panel-title">
+                Text Length
+            </div>
+
+            <div class="panel-desc">
+                Choose how much you want to type.
+            </div>
+
+            <div class="options">
+
+                <button class="option selected"
+                    data-type="length"
+                    data-value="short">
+                    SHORT
+                </button>
+
+                <button class="option"
+                    data-type="length"
+                    data-value="medium">
+                    MEDIUM
+                </button>
+
+                <button class="option"
+                    data-type="length"
+                    data-value="long">
+                    LONG
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="glass panel">
+
+            <div class="panel-title">
+                Complexity
+            </div>
+
+            <div class="panel-desc">
+                Choose the difficulty of the words.
+            </div>
+
+            <div class="options">
+
+                <button class="option selected"
+                    data-type="complexity"
+                    data-value="easy">
+                    EASY
+                </button>
+
+                <button class="option"
+                    data-type="complexity"
+                    data-value="normal">
+                    NORMAL
+                </button>
+
+                <button class="option"
+                    data-type="complexity"
+                    data-value="hard">
+                    HARD
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="glass panel full">
+
+            <div class="panel-title">
+                Gameplay
+            </div>
+
+            <div class="panel-desc">
+                Customize your typing session.
+            </div>
+
+
+            <div class="setting">
+
+                <div>
+                    <div class="setting-name">
+                        Live WPM
+                    </div>
+                    <div class="setting-description">
+                        Show words per minute while typing.
+                    </div>
+                </div>
+
+                <button class="toggle on" data-setting="wpm"></button>
+
+            </div>
+
+
+            <div class="setting">
+
+                <div>
+                    <div class="setting-name">
+                        Live Accuracy
+                    </div>
+                    <div class="setting-description">
+                        Show your current accuracy.
+                    </div>
+                </div>
+
+                <button class="toggle on" data-setting="accuracy"></button>
+
+            </div>
+
+
+            <div class="setting">
+
+                <div>
+                    <div class="setting-name">
+                        Strict Mode
+                    </div>
+                    <div class="setting-description">
+                        You cannot move forward after making a mistake.
+                    </div>
+                </div>
+
+                <button class="toggle" data-setting="strict"></button>
+
+            </div>
+
+
+            <div class="setting">
+
+                <div>
+                    <div class="setting-name">
+                        Case Sensitive
+                    </div>
+                    <div class="setting-description">
+                        Uppercase and lowercase must match.
+                    </div>
+                </div>
+
+                <button class="toggle on" data-setting="case"></button>
+
+            </div>
+
+
+            <div class="setting">
+
+                <div>
+                    <div class="setting-name">
+                        Punctuation
+                    </div>
+                    <div class="setting-description">
+                        Include punctuation in generated sentences.
+                    </div>
+                </div>
+
+                <button class="toggle on" data-setting="punctuation"></button>
+
+            </div>
+
+
+            <div class="setting">
+
+                <div>
+                    <div class="setting-name">
+                        Numbers
+                    </div>
+                    <div class="setting-description">
+                        Include numbers in some sentences.
+                    </div>
+                </div>
+
+                <button class="toggle" data-setting="numbers"></button>
+
+            </div>
+
+
+            <div class="setting">
+
+                <div>
+                    <div class="setting-name">
+                        Sound
+                    </div>
+                    <div class="setting-description">
+                        Play a small sound when an error occurs.
+                    </div>
+                </div>
+
+                <button class="toggle" data-setting="sound"></button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <button id="startGame" class="btn primary start">
+        START TYPING →
+    </button>
+
+</section>
+
+
+<!-- ================= SETTINGS ================= -->
+
+<section id="settingsScreen" class="screen">
+
+    <div class="page-head">
+        <h1>Settings</h1>
+        <button class="back" data-screen="home">← BACK</button>
+    </div>
+
+    <div class="glass settings">
+
+        <div class="setting">
+
+            <div>
+                <div class="setting-name">
+                    Ghost Text
+                </div>
+
+                <div class="setting-description">
+                    Display the sentence you need to type.
+                </div>
+            </div>
+
+            <button class="toggle on" data-setting="ghost"></button>
+
+        </div>
+
+
+        <div class="setting">
+
+            <div>
+                <div class="setting-name">
+                    Auto Focus
+                </div>
+
+                <div class="setting-description">
+                    Automatically activate typing when the game starts.
+                </div>
+            </div>
+
+            <button class="toggle on" data-setting="autofocus"></button>
+
+        </div>
+
+
+        <div class="setting">
+
+            <div>
+                <div class="setting-name">
+                    Animations
+                </div>
+
+                <div class="setting-description">
+                    Enable interface animations.
+                </div>
+            </div>
+
+            <button class="toggle on" data-setting="animations"></button>
+
+        </div>
+
+
+        <div class="setting">
+
+            <div>
+                <div class="setting-name">
+                    Reduced Motion
+                </div>
+
+                <div class="setting-description">
+                    Reduce blinking and interface movement.
+                </div>
+            </div>
+
+            <button class="toggle" data-setting="reducedMotion"></button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= GAME ================= -->
+
+<section id="gameScreen" class="screen game">
+
+    <div class="game-top">
+
+        <div class="glass stat">
+            <div class="stat-label">WPM</div>
+            <div class="stat-value" id="wpm">0</div>
+        </div>
+
+        <div class="glass stat">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value" id="accuracy">100%</div>
+        </div>
+
+        <div class="glass stat">
+            <div class="stat-label">Time</div>
+            <div class="stat-value" id="time">0.0s</div>
+        </div>
+
+        <div class="glass stat">
+            <div class="stat-label">Progress</div>
+            <div class="stat-value" id="progress">0%</div>
+        </div>
+
+    </div>
+
+
+    <div class="progress">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+
+    <div
+        id="typingPanel"
+        class="glass typing-panel"
+    >
+
+        <div class="text-wrap">
+
+            <div
+                id="textDisplay"
+                class="text-display"
+            ></div>
+
+        </div>
+
+        <div class="game-hint" id="gameHint">
+            CLICK HERE OR START TYPING
+        </div>
+
+    </div>
+
+
+    <input
+        id="typingInput"
+        class="typing-input"
+        type="text"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+    >
+
+</section>
+
+
+<!-- ================= RESULTS ================= -->
+
+<section id="resultsScreen" class="screen results">
+
+    <div class="glass" style="padding:45px 25px;">
+
+        <div class="results-title">
+            FINISHED
+        </div>
+
+        <div class="results-sub">
+            Here's how you performed.
+        </div>
+
+
+        <div class="result-grid">
+
+            <div class="glass result">
+
+                <div
+                    id="finalWpm"
+                    class="result-number"
+                >
+                    0
+                </div>
+
+                <div class="result-label">
+                    WPM
+                </div>
+
+            </div>
+
+
+            <div class="glass result">
+
+                <div
+                    id="finalAccuracy"
+                    class="result-number"
+                >
+                    100%
+                </div>
+
+                <div class="result-label">
+                    ACCURACY
+                </div>
+
+            </div>
+
+
+            <div class="glass result">
+
+                <div
+                    id="finalTime"
+                    class="result-number"
+                >
+                    0s
+                </div>
+
+                <div class="result-label">
+                    TIME
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="result-buttons">
+
+            <button id="retry" class="btn">
+                RETRY
+            </button>
+
+            <button id="newGame" class="btn primary">
+                NEW GAME
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   TYPERUSH
+========================================== */
+
+const $ = id => document.getElementById(id);
+
+
+/* ==========================================
+   SETTINGS
+========================================== */
+
+const config = {
+
+    length:"short",
+    complexity:"easy",
+
+    wpm:true,
+    accuracy:true,
+    strict:false,
+    case:true,
+    punctuation:true,
+    numbers:false,
+    sound:false,
+
+    ghost:true,
+    autofocus:true,
+    animations:true,
+    reducedMotion:false
+
+};
+
+
+/* ==========================================
+   TEXT DATABASE
+========================================== */
+
+const wordSets = {
+
+    easy:[
+        "the","cat","dog","house","game","computer",
+        "school","keyboard","water","night","day",
+        "small","big","fast","slow","happy","light",
+        "dark","room","world","friend","music",
+        "phone","window","table","green","blue",
+        "walk","run","jump","play","learn","write"
+    ],
+
+    normal:[
+        "keyboard","practice","computer","language",
+        "accuracy","improve","experience","challenge",
+        "interesting","different","important","quickly",
+        "carefully","information","creative","system",
+        "technology","communication","understand",
+        "environment","activity","successful",
+        "development","performance","comfortable",
+        "attention","knowledge","progress"
+    ],
+
+    hard:[
+        "extraordinary","approximately","configuration",
+        "sophisticated","concentration","determination",
+        "communication","implementation","architecture",
+        "characteristic","responsibility","environmental",
+        "unpredictable","comprehensive","considerable",
+        "interpretation","efficiently","simultaneously",
+        "experimental","circumstances","international",
+        "recommendation","investigation","technological",
+        "particularly","demonstration","organization"
+    ]
+
+};
+
+
+const sentenceTemplates = [
+
+    "The {a} {b} through the {c} while everyone watched.",
+
+    "Learning to {a} requires {b} and regular {c}.",
+
+    "A {a} can make your {b} much more {c}.",
+
+    "The {a} continued to {b} as the {c} changed.",
+
+    "Sometimes the most {a} solution is also the most {b}.",
+
+    "Good {a} comes from {b}, patience, and constant {c}.",
+
+    "The {a} system was designed to {b} information more {c}.",
+
+    "People often become better at {a} when they practice {b}.",
+
+    "Every {a} provides another opportunity to {b} something {c}.",
+
+    "The {a} looked completely different after the {b} was {c}."
+
+];
+
+
+const punctuationTemplates = [
+
+    "The {a} was surprisingly {b}, but everyone continued to {c}.",
+
+    "After several attempts, the {a} finally managed to {b} successfully.",
+
+    "The {a}, however, decided to {b} before the {c} arrived.",
+
+    "It was a strange moment; nobody expected the {a} to {b}."
+
+];
+
+
+const numberTemplates = [
+
+    "The computer processed {n} files in less than {n} seconds.",
+
+    "There were {n} players online during the final round.",
+
+    "The keyboard recorded more than {n} keystrokes today.",
+
+    "The project took {n} days and required {n} separate tests."
+
+];
+
+
+function randomItem(array){
+
+    return array[
+        Math.floor(Math.random()*array.length)
+    ];
+
+}
+
+
+function randomNumber(){
+
+    return Math.floor(
+        Math.random()*900
+    )+100;
+
+}
+
+
+function generateText(){
+
+    const words =
+        wordSets[config.complexity];
+
+    let template;
+
+    if(
+        config.numbers &&
+        Math.random()<.25
+    ){
+
+        template = randomItem(numberTemplates);
+
+        return template
+            .replace("{n}",randomNumber())
+            .replace("{n}",randomNumber());
+
+    }
+
+    if(
+        config.punctuation &&
+        Math.random()<.3
+    ){
+
+        template = randomItem(punctuationTemplates);
+
+    }else{
+
+        template = randomItem(sentenceTemplates);
+
+    }
+
+
+    const values = {
+
+        a:randomItem(words),
+        b:randomItem(words),
+        c:randomItem(words)
+
+    };
+
+
+    let result = template;
+
+    result = result.replace("{a}",values.a);
+    result = result.replace("{b}",values.b);
+    result = result.replace("{c}",values.c);
+
+
+    if(!config.punctuation){
+
+        result =
+            result.replace(/[.,!?;:]/g,"");
+
+    }
+
+    return result;
+
+}
+
+
+/* ==========================================
+   LENGTH
+========================================== */
+
+function generateFullText(){
+
+    const count =
+        config.length==="short"
+            ? 1
+            : config.length==="medium"
+                ? 3
+                : 6;
+
+    let output=[];
+
+    for(let i=0;i<count;i++){
+
+        output.push(
+            generateText()
+        );
+
+    }
+
+    return output.join(" ");
+
+}
+
+
+/* ==========================================
+   GAME STATE
+========================================== */
+
+let currentText = "";
+
+let gameStarted = false;
+
+let startTimestamp = 0;
+
+let timer = null;
+
+let totalErrors = 0;
+
+let lastTypedLength = 0;
+
+
+/* ==========================================
+   SCREEN MANAGEMENT
+========================================== */
+
+function showScreen(id){
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(screen=>{
+            screen.classList.remove("active");
+        });
+
+    $(id).classList.add("active");
+
+}
+
+
+/* ==========================================
+   HOME BUTTONS
+========================================== */
+
+$("homePlay").onclick=()=>{
+
+    showScreen("setupScreen");
+
+};
+
+$("homeMode").onclick=()=>{
+
+    showScreen("modeScreen");
+
+};
+
+$("homeSettings").onclick=()=>{
+
+    showScreen("settingsScreen");
+
+};
+
+
+/* ==========================================
+   BACK BUTTONS
+========================================== */
+
+document
+    .querySelectorAll(".back")
+    .forEach(button=>{
+
+        button.onclick=()=>{
+
+            showScreen(
+                button.dataset.screen
+            );
+
+        };
+
+    });
+
+
+/* ==========================================
+   MODE OPTIONS
+========================================== */
+
+document
+    .querySelectorAll(".mode-option")
+    .forEach(button=>{
+
+        button.onclick=()=>{
+
+            document
+                .querySelectorAll(".mode-option")
+                .forEach(x=>{
+                    x.classList.remove("active");
+                });
+
+            button.classList.add("active");
+
+        };
+
+    });
+
+
+/* ==========================================
+   CONFIG OPTIONS
+========================================== */
+
+document
+    .querySelectorAll(".option")
+    .forEach(button=>{
+
+        button.onclick=()=>{
+
+            const type =
+                button.dataset.type;
+
+            const value =
+                button.dataset.value;
+
+            document
+                .querySelectorAll(
+                    `.option[data-type="${type}"]`
+                )
+                .forEach(x=>{
+                    x.classList.remove("selected");
+                });
+
+            button.classList.add("selected");
+
+            config[type]=value;
+
+        };
+
+    });
+
+
+/* ==========================================
+   TOGGLES
+========================================== */
+
+document
+    .querySelectorAll(".toggle")
+    .forEach(toggle=>{
+
+        toggle.onclick=()=>{
+
+            const key =
+                toggle.dataset.setting;
+
+            toggle.classList.toggle("on");
+
+            config[key] =
+                toggle.classList.contains("on");
+
+        };
+
+    });
+
+
+/* ==========================================
+   START GAME
+========================================== */
+
+$("startGame").onclick=()=>{
+
+    startGame();
+
+};
+
+
+function startGame(){
+
+    clearInterval(timer);
+
+    currentText =
+        generateFullText();
+
+    gameStarted=false;
+
+    startTimestamp=0;
+
+    totalErrors=0;
+
+    lastTypedLength=0;
+
+    $("typingInput").value="";
+
+    renderText("");
+
+    resetStats();
+
+    showScreen("gameScreen");
+
+    $("gameHint").textContent =
+        "CLICK HERE OR START TYPING";
+
+    if(config.autofocus){
+
+        setTimeout(()=>{
+            focusTyping();
+        },100);
+
+    }
+
+}
+
+
+/* ==========================================
+   RESET STATS
+========================================== */
+
+function resetStats(){
+
+    $("wpm").textContent="0";
+
+    $("accuracy").textContent="100%";
+
+    $("time").textContent="0.0s";
+
+    $("progress").textContent="0%";
+
+    $("progressBar").style.width="0%";
+
+}
+
+
+/* ==========================================
+   FOCUS
+========================================== */
+
+function focusTyping(){
+
+    $("typingInput").focus();
+
+}
+
+
+/* ==========================================
+   CLICK GAME AREA
+========================================== */
+
+$("typingPanel").addEventListener(
+    "mousedown",
+    ()=>{
+        focusTyping();
+    }
+);
+
+
+/* ==========================================
+   START TIMER
+========================================== */
+
+function beginGame(){
+
+    if(gameStarted) return;
+
+    gameStarted=true;
+
+    startTimestamp=performance.now();
+
+    $("gameHint").textContent =
+        "TYPE THE TEXT ABOVE";
+
+    timer=setInterval(
+        updateStats,
+        100
+    );
+
+}
+
+
+/* ==========================================
+   INPUT HANDLING
+========================================== */
+
+$("typingInput").addEventListener(
+    "input",
+    handleTyping
+);
+
+
+function handleTyping(){
+
+    let typed =
+        $("typingInput").value;
+
+
+    if(typed.length>0){
+
+        beginGame();
+
+    }
+
+
+    /* STRICT MODE */
+
+    if(config.strict){
+
+        const index =
+            typed.length-1;
+
+        if(index>=0){
+
+            const correct =
+                compareCharacters(
+                    typed[index],
+                    currentText[index]
+                );
+
+            if(!correct){
+
+                $("typingInput").value =
+                    typed.slice(0,-1);
+
+                totalErrors++;
+
+                playError();
+
+                renderText(
+                    $("typingInput").value
+                );
+
+                updateStats();
+
+                return;
+
+            }
+
+        }
+
+    }
+
+
+    /* COUNT ERRORS */
+
+    totalErrors=0;
+
+    for(
+        let i=0;
+        i<typed.length;
+        i++
+    ){
+
+        if(
+            !compareCharacters(
+                typed[i],
+                currentText[i]
+            )
+        ){
+
+            totalErrors++;
+
+        }
+
+    }
+
+
+    renderText(typed);
+
+    updateStats();
+
+
+    /* FINISH */
+
+    if(typed===currentText){
+
+        finishGame();
+
+    }
+
+}
+
+
+/* ==========================================
+   CHARACTER COMPARISON
+========================================== */
+
+function compareCharacters(a,b){
+
+    if(config.case){
+
+        return a===b;
+
+    }
+
+    return (
+        a||""
+    ).toLowerCase()
+    ===
+    (
+        b||""
+    ).toLowerCase();
+
+}
+
+
+/* ==========================================
+   RENDER GHOST TEXT
+========================================== */
+
+function renderText(typed){
+
+    const display =
+        $("textDisplay");
+
+    display.innerHTML="";
+
+
+    if(!config.ghost){
+
+        display.textContent =
+            "Ghost text is disabled.";
+
+        return;
+
+    }
+
+
+    for(
+        let i=0;
+        i<currentText.length;
+        i++
+    ){
+
+        const span =
+            document.createElement("span");
+
+        span.className="char";
+
+        const expected =
+            currentText[i];
+
+        const actual =
+            typed[i];
+
+
+        span.textContent =
+            expected;
+
+
+        if(i<typed.length){
+
+            if(
+                compareCharacters(
+                    actual,
+                    expected
+                )
+            ){
+
+                span.classList.add("correct");
+
+            }else{
+
+                span.classList.add("wrong");
+
+            }
+
+        }else if(
+            i===typed.length
+        ){
+
+            span.classList.add("current");
+
+        }
+
+
+        display.appendChild(span);
+
+    }
+
+}
+
+
+/* ==========================================
+   STATISTICS
+========================================== */
+
+function updateStats(){
+
+    if(!gameStarted){
+
+        return;
+
+    }
+
+
+    const seconds =
+        (performance.now()-startTimestamp)/1000;
+
+
+    const typed =
+        $("typingInput").value;
+
+
+    const minutes =
+        seconds/60;
+
+
+    const correctCharacters =
+        Math.max(
+            0,
+            typed.length-totalErrors
+        );
+
+
+    const wpm =
+        minutes>0
+            ? Math.round(
+                (correctCharacters/5)
+                /minutes
+            )
+            : 0;
+
+
+    const accuracy =
+        typed.length>0
+            ? Math.max(
+                0,
+                Math.round(
+                    (
+                        (typed.length-totalErrors)
+                        /typed.length
+                    )*100
+                )
+            )
+            : 100;
+
+
+    const progress =
+        currentText.length>0
+            ? Math.min(
+                100,
+                Math.round(
+                    (
+                        typed.length/
+                        currentText.length
+                    )*100
+                )
+            )
+            : 0;
+
+
+    $("wpm").textContent =
+        config.wpm
+            ? wpm
+            : "—";
+
+
+    $("accuracy").textContent =
+        config.accuracy
+            ? accuracy+"%"
+            : "—";
+
+
+    $("time").textContent =
+        seconds.toFixed(1)+"s";
+
+
+    $("progress").textContent =
+        progress+"%";
+
+
+    $("progressBar").style.width =
+        progress+"%";
+
+}
+
+
+/* ==========================================
+   FINISH
+========================================== */
+
+function finishGame(){
+
+    clearInterval(timer);
+
+    const seconds =
+        (performance.now()-startTimestamp)/1000;
+
+
+    const minutes =
+        seconds/60;
+
+
+    const accuracy =
+        currentText.length>0
+            ? Math.max(
+                0,
+                Math.round(
+                    (
+                        (currentText.length-totalErrors)
+                        /currentText.length
+                    )*100
+                )
+            )
+            : 100;
+
+
+    const wpm =
+        minutes>0
+            ? Math.round(
+                (
+                    (currentText.length-totalErrors)
+                    /5
+                )/minutes
+            )
+            : 0;
+
+
+    $("finalWpm").textContent =
+        wpm;
+
+
+    $("finalAccuracy").textContent =
+        accuracy+"%";
+
+
+    $("finalTime").textContent =
+        seconds.toFixed(1)+"s";
+
+
+    setTimeout(()=>{
+
+        showScreen("resultsScreen");
+
+    },250);
+
+}
+
+
+/* ==========================================
+   RETRY
+========================================== */
+
+$("retry").onclick=()=>{
+
+    startGame();
+
+};
+
+
+/* ==========================================
+   NEW GAME
+========================================== */
+
+$("newGame").onclick=()=>{
+
+    showScreen("setupScreen");
+
+};
+
+
+/* ==========================================
+   ERROR SOUND
+========================================== */
+
+let audioContext=null;
+
+
+function playError(){
+
+    if(!config.sound){
+
+        return;
+
+    }
+
+
+    try{
+
+        if(!audioContext){
+
+            audioContext =
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+
+        }
+
+
+        const oscillator =
+            audioContext.createOscillator();
+
+        const gain =
+            audioContext.createGain();
+
+
+        oscillator.frequency.value=120;
+
+        gain.gain.value=.025;
+
+
+        oscillator.connect(gain);
+
+        gain.connect(
+            audioContext.destination
+        );
+
+
+        oscillator.start();
+
+        oscillator.stop(
+            audioContext.currentTime+.05
+        );
+
+    }catch(e){}
+
+}
+
+
+/* ==========================================
+   KEYBOARD SHORTCUT
+========================================== */
+
+document.addEventListener(
+    "keydown",
+    event=>{
+
+        if(
+            $("gameScreen").classList.contains("active")
+        ){
+
+            if(event.key==="Escape"){
+
+                clearInterval(timer);
+
+                showScreen("home");
+
+                return;
+
+            }
+
+
+            focusTyping();
+
+        }
+
+    }
+);
+
+
+/* ==========================================
+   INITIAL STATE
+========================================== */
+
+renderText("");
+
+</script>
+
+</body>
+</html>
